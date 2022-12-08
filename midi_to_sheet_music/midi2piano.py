@@ -2,11 +2,10 @@
 This module allows user to convert MIDI melodies to SS13 sheet music ready
 for copy-and-paste
 """
+from datetime import datetime
 from functools import reduce
-import MidiDependencies as mi
+from . import midi as mi
 import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
 root = tk.Tk()
 root.withdraw()
 
@@ -15,14 +14,15 @@ LINES_LIMIT = 200
 TICK_LAG = 0.5
 OVERALL_IMPORT_LIM = 2*LINE_LENGTH_LIM*LINES_LIMIT
 END_OF_LINE_CHAR = """
-""" # BYOND can't parse \n and I am forced to define my own NEWLINE char
+"""  # BYOND can't parse \n and I am forced to define my own NEWLINE char
 
-OCTAVE_TRANSPOSE = 0 # Change here to transpose melodies by octaves
-FLOAT_PRECISION = 2 # Change here to allow more or less numbers after dot in floats
+OCTAVE_TRANSPOSE = 0  # Change here to transpose melodies by octaves
+FLOAT_PRECISION = 2  # Change here to allow more or less numbers after dot in floats
 
 OCTAVE_KEYS = 12
 HIGHEST_OCTAVE = 8
 
+file_name = None
 time_quanta = 100 * TICK_LAG
 """
 class Meta():
@@ -39,15 +39,18 @@ class Meta():
 """
 
 # UTILITY FUNCTIONS
+
+
 def condition(event):
     """
     This function check if given MIDI event is meaningful
     """
-    if event[0] == 'track_name' and event[2] == 'Drums': # Percussion
+    if event[0] == 'track_name' and event[2] == 'Drums':  # Percussion
         return False
-    if event[0] == 'note': # Only thing that matters
+    if event[0] == 'note':  # Only thing that matters
         return True
     return False
+
 
 def notenum2string(num, accidentals, octaves):
     """
@@ -55,9 +58,10 @@ def notenum2string(num, accidentals, octaves):
     runs expressed using _accidentals_ and _octaves_
     """
     names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-    convert_table = {1:0, 3:1, 6:2, 8:3, 10:4}
-    inclusion_table = {0:0, 2:1, 5:2, 7:3, 9:4}
-    correspondence_table = {0:1, 1:0, 2:3, 3:2, 5:6, 6:5, 7:8, 8:7, 9:10, 10:9}
+    convert_table = {1: 0, 3: 1, 6: 2, 8: 3, 10: 4}
+    inclusion_table = {0: 0, 2: 1, 5: 2, 7: 3, 9: 4}
+    correspondence_table = {0: 1, 1: 0, 2: 3,
+                            3: 2, 5: 6, 6: 5, 7: 8, 8: 7, 9: 10, 10: 9}
 
     num += OCTAVE_KEYS * OCTAVE_TRANSPOSE
     octave = int(num / OCTAVE_KEYS)
@@ -85,13 +89,14 @@ def notenum2string(num, accidentals, octaves):
 
     return [
         (
-            names[name_indx]+
-            ("n" if add_n else "")+
+            names[name_indx] +
+            ("n" if add_n else "") +
             str((octave if octave != octaves[name_indx] else ""))
         ),
         accidentals,
         output_octaves
-        ]
+    ]
+
 
 def dur2mod(dur, bpm_mod=1.0):
     """
@@ -104,16 +109,21 @@ def dur2mod(dur, bpm_mod=1.0):
 # END OF UTILITY FUNCTIONS
 
 # CONVERSION FUNCTIONS
-def obtain_midi_file():
-    """
-    Asks user to select MIDI and returns this file opened in binary mode for reading
-    """
-    messagebox.showinfo("Midi2Piano Information", "Choose a MIDI file to convert")
-    file = filedialog.askopenfilename(title='MIDI file selection',filetypes=[['*.mid', 'MID files']])
-    if not file:
-        return None
-    file = open(file, mode='rb').read()
-    return file
+
+
+# def obtain_midi_file():
+#     """
+#     Asks user to select MIDI and returns this file opened in binary mode for reading
+#     """
+#     messagebox.showinfo("Midi2Piano Information",
+#                         "Choose a MIDI file to convert")
+#     file = filedialog.askopenfilename(
+#         title='MIDI file selection', filetypes=[['*.mid', 'MID files']])
+#     if not file:
+#         return None
+#     file = open(file, mode='rb').read()
+#     return file
+
 
 def midi2score_without_ticks(midi_file):
     """
@@ -122,19 +132,21 @@ def midi2score_without_ticks(midi_file):
     opus = mi.midi2opus(midi_file)
     opus = mi.to_millisecs(opus)
     score = mi.opus2score(opus)
-    return score[1:] # Ticks don't matter anymore, it is always 1000
+    return score[1:]  # Ticks don't matter anymore, it is always 1000
+
 
 def filter_events_from_score(score):
     """
     Filters out irrevelant events and returns new score
     """
-    return list(map( # For each score track
-        lambda score_track: list(filter( # Filter irrevelant events
+    return list(map(  # For each score track
+        lambda score_track: list(filter(  # Filter irrevelant events
             condition,
             score_track
-            )),
+        )),
         score
-        ))
+    ))
+
 
 def filter_empty_tracks(score):
     """
@@ -155,11 +167,13 @@ def filter_start_time_and_note_num(score):
             score_track)),
         score))
 
+
 def merge_events(score):
     """Merges all tracks together and returns new score"""
     return list(reduce(
         lambda lst1, lst2: lst1+lst2,
         score))
+
 
 def sort_score_by_event_times(score):
     """Sorts events by start time and returns new score"""
@@ -168,7 +182,8 @@ def sort_score_by_event_times(score):
         sorted(
             list(range(len(score))),
             key=lambda indx: score[indx][0])
-        ))
+    ))
+
 
 def convert_into_delta_times(score):
     """
@@ -179,9 +194,11 @@ def convert_into_delta_times(score):
             [
                 super_event[1][0]-super_event[0][0],
                 super_event[0][1]
-            ]), # [ [1, 2], [3, 4] ] -> [ [2, 2] ]
-        zip(score[:-1], score[1:]) # Shifted association. [1, 2, 3] -> [ (1, 2), (2, 3) ]
-        ))+[[1000, score[-1][1]]] # Add 1 second note to the end
+            ]),  # [ [1, 2], [3, 4] ] -> [ [2, 2] ]
+        # Shifted association. [1, 2, 3] -> [ (1, 2), (2, 3) ]
+        zip(score[:-1], score[1:])
+    ))+[[1000, score[-1][1]]]  # Add 1 second note to the end
+
 
 def perform_roundation(score):
     """
@@ -191,6 +208,7 @@ def perform_roundation(score):
     return list(map(
         lambda event: [time_quanta*round(event[0]/time_quanta), event[1]],
         score))
+
 
 def obtain_common_duration(score):
     """
@@ -204,10 +222,11 @@ def obtain_common_duration(score):
             unique_durs.append(dur)
     # How many such durations occur throughout the melody?
     counter = [durs.count(dur) for dur in unique_durs]
-    highest_counter = max(counter) # Highest counter
+    highest_counter = max(counter)  # Highest counter
     dur_n_count = list(zip(durs, counter))
     dur_n_count = list(filter(lambda e: e[1] == highest_counter, dur_n_count))
-    return dur_n_count[0][0] # Will be there
+    return dur_n_count[0][0]  # Will be there
+
 
 def reduce_score_to_chords(score):
     """
@@ -219,13 +238,14 @@ def reduce_score_to_chords(score):
     new_chord = [[], 0]
     # [ [chord notes], duration of chord ]
     for event in score:
-        new_chord[0].append(event[1]) # Append new note to the chord
+        new_chord[0].append(event[1])  # Append new note to the chord
         if event[0] == 0:
-            continue # Add new notes to the chord until non-zero duration is hit
-        new_chord[1] = event[0] # This is the duration of chord
-        new_score.append(new_chord) # Append chord to the list
-        new_chord = [[], 0] # Reset the chord
+            continue  # Add new notes to the chord until non-zero duration is hit
+        new_chord[1] = event[0]  # This is the duration of chord
+        new_score.append(new_chord)  # Append chord to the list
+        new_chord = [[], 0]  # Reset the chord
     return new_score
+
 
 def obtain_sheet_music(score, most_frequent_dur):
     """
@@ -244,12 +264,13 @@ def obtain_sheet_music(score, most_frequent_dur):
             if note_indx != len(event[0])-1:
                 result += '-'
 
-        if event[1] != most_frequent_dur: # Quarters are default
+        if event[1] != most_frequent_dur:  # Quarters are default
             result += '/'
             result += dur2mod(event[1], most_frequent_dur)
         result += ','
 
     return result
+
 
 def explode_sheet_music(sheet_music):
     """
@@ -274,6 +295,7 @@ def explode_sheet_music(sheet_music):
 
     return split_list
 
+
 def finalize_sheet_music(split_music, most_frequent_dur):
     """
     Recreates sheet music from exploded sheet music, truncates it and returns it
@@ -281,33 +303,61 @@ def finalize_sheet_music(split_music, most_frequent_dur):
     sheet_music = ""
     for note in split_music:
         sheet_music += note
-    sheet_music = sheet_music.rstrip(',') # Trim the last ,
-    sheet_music = "BPM: " + str(int(60000 / most_frequent_dur)) + END_OF_LINE_CHAR + sheet_music
+    sheet_music = sheet_music.rstrip(',')  # Trim the last ,
+    sheet_music = "BPM: " + \
+        str(int(60000 / most_frequent_dur)) + END_OF_LINE_CHAR + sheet_music
     return sheet_music[:min(len(sheet_music), OVERALL_IMPORT_LIM)]
 # END OF CONVERSION FUNCTIONS
 
-def main_cycle():
-    """
-    Activate the script
-    """
-    while True:
-        midi_file = obtain_midi_file()
-        if not midi_file:
-            return # Cancel
-        score = midi2score_without_ticks(midi_file)
-        score = filter_events_from_score(score)
-        score = filter_start_time_and_note_num(score)
-        score = filter_empty_tracks(score)
-        score = merge_events(score)
-        score = sort_score_by_event_times(score)
-        score = convert_into_delta_times(score)
-        score = perform_roundation(score)
-        most_frequent_dur = obtain_common_duration(score)
-        score = reduce_score_to_chords(score)
-        sheet_music = obtain_sheet_music(score, most_frequent_dur)
-        split_music = explode_sheet_music(sheet_music)
-        sheet_music = finalize_sheet_music(split_music, most_frequent_dur)
 
-        root.clipboard_append(sheet_music)
+# ADDED FUNCTIONS
+def obtain_midi_file(FILE_PATH):
+    if FILE_PATH.endswith('.mid') | FILE_PATH.endswith('.midi'):
+        file = open(FILE_PATH, 'rb').read()
+    else:
+        print('Filetype must be a .mid or .midi')
+        return None
 
-main_cycle()
+    if not file:
+        return None
+
+    return file
+
+
+def file_name(FILE_PATH):
+ # get filename without path
+    index = FILE_PATH.rfind('/')
+    file_name = FILE_PATH[index:]
+    return file_name
+
+
+def midi_to_music_sheet(FILE_PATH):
+
+    midi_file = obtain_midi_file(FILE_PATH)
+    if not midi_file:
+        return
+    score = midi2score_without_ticks(midi_file)
+    score = filter_events_from_score(score)
+    score = filter_start_time_and_note_num(score)
+    score = filter_empty_tracks(score)
+    score = merge_events(score)
+    score = sort_score_by_event_times(score)
+    score = convert_into_delta_times(score)
+    score = perform_roundation(score)
+    most_frequent_dur = obtain_common_duration(score)
+    score = reduce_score_to_chords(score)
+    sheet_music = obtain_sheet_music(score, most_frequent_dur)
+    split_music = explode_sheet_music(sheet_music)
+    sheet_music = finalize_sheet_music(split_music, most_frequent_dur)
+
+    # copy sheet music to clipboard
+    root.clipboard_append(sheet_music)
+
+    # print to console
+    print(f'{file_name(FILE_PATH)}\n\n{sheet_music}\n\n')
+
+    # printed to Music.Sheets.txt
+    date = datetime.now()
+    f = open("Music_Sheets.txt", "a")
+    f.write(f'{date}\n{file_name(FILE_PATH)}\n\n{sheet_music}\n\n')
+    f.close()
