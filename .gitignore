@@ -1,2 +1,5 @@
+.DS_Store
+
 test_files/
-Music_Sheets.txt
+music_sheets.txt
+saved_midi_files

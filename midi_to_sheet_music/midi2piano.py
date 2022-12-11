@@ -2,6 +2,7 @@
 This module allows user to convert MIDI melodies to SS13 sheet music ready
 for copy-and-paste
 """
+import os
 from datetime import datetime
 from functools import reduce
 from . import midi as mi
@@ -109,20 +110,6 @@ def dur2mod(dur, bpm_mod=1.0):
 # END OF UTILITY FUNCTIONS
 
 # CONVERSION FUNCTIONS
-
-
-# def obtain_midi_file():
-#     """
-#     Asks user to select MIDI and returns this file opened in binary mode for reading
-#     """
-#     messagebox.showinfo("Midi2Piano Information",
-#                         "Choose a MIDI file to convert")
-#     file = filedialog.askopenfilename(
-#         title='MIDI file selection', filetypes=[['*.mid', 'MID files']])
-#     if not file:
-#         return None
-#     file = open(file, mode='rb').read()
-#     return file
 
 
 def midi2score_without_ticks(midi_file):
@@ -310,7 +297,7 @@ def finalize_sheet_music(split_music, most_frequent_dur):
 # END OF CONVERSION FUNCTIONS
 
 
-# ADDED FUNCTIONS
+# MODIFIED FUNCTIONS
 def obtain_midi_file(FILE_PATH):
     if FILE_PATH.endswith('.mid') | FILE_PATH.endswith('.midi'):
         file = open(FILE_PATH, 'rb').read()
@@ -324,14 +311,17 @@ def obtain_midi_file(FILE_PATH):
     return file
 
 
-def file_name(FILE_PATH):
+def file_name(file_path):
  # get filename without path
-    index = FILE_PATH.rfind('/')
-    file_name = FILE_PATH[index:]
-    return file_name
+    print(file_path)
+    index = file_path.rfind('/')
+    file_path = file_path[index + 1:]
+    index = file_path.rfind('.')
+    file_path = file_path[:index]
+    return file_path
 
 
-def midi_to_music_sheet(FILE_PATH):
+def midi_to_music_sheet(FILE_PATH, KEEP):
 
     midi_file = obtain_midi_file(FILE_PATH)
     if not midi_file:
@@ -353,11 +343,17 @@ def midi_to_music_sheet(FILE_PATH):
     # copy sheet music to clipboard
     root.clipboard_append(sheet_music)
 
+    output_name = file_name(FILE_PATH)
+
+    if KEEP == False:
+        # delete midi file
+        os.remove(FILE_PATH)
+
     # print to console
-    print(f'{file_name(FILE_PATH)}\n\n{sheet_music}\n\n')
+    print(f'{output_name}\n\n{sheet_music}\n\n')
 
     # printed to Music.Sheets.txt
     date = datetime.now()
-    f = open("Music_Sheets.txt", "a")
-    f.write(f'{date}\n{file_name(FILE_PATH)}\n\n{sheet_music}\n\n')
+    f = open("music_sheets.txt", "a")
+    f.write(f'{date}\n{output_name}\n\n{sheet_music}\n\n')
     f.close()
