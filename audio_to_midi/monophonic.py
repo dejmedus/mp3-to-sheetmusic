@@ -148,6 +148,7 @@ def prior_probabilities(
             if j + midi_min == f0_[n_frame]:
                 priors[(j * 2) + 2, n_frame] = pitch_acc
 
+            # overflow
             elif np.abs(j + midi_min - f0_[n_frame]) == 1:
                 priors[(j * 2) + 2, n_frame] = pitch_acc * spread
 
@@ -303,7 +304,9 @@ def wave_to_midi(
     Returns:
         midi (midiutil.MIDIFile): A MIDI file that can be written to disk.
     """
-    transmat = transition_matrix(note_min, note_max, p_stay_note, p_stay_silence)
+    
+    transmat = transition_matrix(
+        note_min, note_max, p_stay_note, p_stay_silence)
     priors = prior_probabilities(
         audio_signal,
         note_min,
@@ -318,7 +321,6 @@ def wave_to_midi(
     p_init = np.zeros(transmat.shape[0])
     p_init[0] = 1
     states = librosa.sequence.viterbi(priors, transmat, p_init=p_init)
-
     pianoroll = states_to_pianoroll(states, note_min, hop_length / srate)
     bpm = librosa.beat.tempo(y=audio_signal)[0]
     midi = pianoroll_to_midi(bpm, pianoroll)

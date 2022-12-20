@@ -2,13 +2,10 @@
 This module allows user to convert MIDI melodies to SS13 sheet music ready
 for copy-and-paste
 """
-import os
+
 from datetime import datetime
 from functools import reduce
 from . import midi as mi
-import tkinter as tk
-root = tk.Tk()
-root.withdraw()
 
 LINE_LENGTH_LIM = 50
 LINES_LIMIT = 200
@@ -298,22 +295,8 @@ def finalize_sheet_music(split_music, most_frequent_dur):
 
 
 # MODIFIED FUNCTIONS
-def obtain_midi_file(FILE_PATH):
-    if FILE_PATH.endswith('.mid') | FILE_PATH.endswith('.midi'):
-        file = open(FILE_PATH, 'rb').read()
-    else:
-        print('Filetype must be a .mid or .midi')
-        return None
-
-    if not file:
-        return None
-
-    return file
-
-
 def file_name(file_path):
  # get filename without path
-    print(file_path)
     index = file_path.rfind('/')
     file_path = file_path[index + 1:]
     index = file_path.rfind('.')
@@ -321,11 +304,14 @@ def file_name(file_path):
     return file_path
 
 
-def midi_to_music_sheet(FILE_PATH, KEEP):
+def midi_to_music_sheet(midi_file, filename):
 
-    midi_file = obtain_midi_file(FILE_PATH)
+    # midi_file = open(FILE_PATH, 'rb').read()
+    print(type(midi_file))
+          
     if not midi_file:
         return
+    
     score = midi2score_without_ticks(midi_file)
     score = filter_events_from_score(score)
     score = filter_start_time_and_note_num(score)
@@ -340,20 +326,12 @@ def midi_to_music_sheet(FILE_PATH, KEEP):
     split_music = explode_sheet_music(sheet_music)
     sheet_music = finalize_sheet_music(split_music, most_frequent_dur)
 
-    # copy sheet music to clipboard
-    root.clipboard_append(sheet_music)
-
-    output_name = file_name(FILE_PATH)
-
-    if KEEP == False:
-        # delete midi file
-        os.remove(FILE_PATH)
-
-    # print to console
-    print(f'{output_name}\n\n{sheet_music}\n\n')
-
-    # printed to Music.Sheets.txt
+    output_name = file_name(filename)
+    
     date = datetime.now()
-    f = open("music_sheets.txt", "a")
-    f.write(f'{date}\n{output_name}\n\n{sheet_music}\n\n')
-    f.close()
+
+    return {
+        'date': date,
+        'name': output_name,
+        'sheet_music': sheet_music
+    }
