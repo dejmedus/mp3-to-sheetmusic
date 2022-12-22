@@ -304,11 +304,8 @@ def file_name(file_path):
     return file_path
 
 
-def midi_to_music_sheet(midi_file, filename):
-
-    # midi_file = open(FILE_PATH, 'rb').read()
-    print(type(midi_file))
-          
+def midi_to_music_sheet(FILE_PATH):
+    midi_file = open(FILE_PATH, 'rb').read()
     if not midi_file:
         return
     
@@ -326,7 +323,7 @@ def midi_to_music_sheet(midi_file, filename):
     split_music = explode_sheet_music(sheet_music)
     sheet_music = finalize_sheet_music(split_music, most_frequent_dur)
 
-    output_name = file_name(filename)
+    output_name = file_name(FILE_PATH)
     
     date = datetime.now()
 

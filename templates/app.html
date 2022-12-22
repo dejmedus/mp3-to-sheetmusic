@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Convert mp3 files to SS16 sheet music.">
+    <meta name="description" content="Convert mp3 files to SS13 sheet music.">
 
     <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
@@ -21,9 +21,8 @@
     <h1>Sheet Music {{ name }}</h1>
     <div class="sheet_music">
         <p>{{ sheet_music }}</p>
-        <button onclick="copyText">copy</button>
+        <button onclick="copyText()">copy</button>
     </div>
-    <textarea name="test" id="test" cols="30" rows="30"></textarea>
     {% else %}
     <h1>Audio to SS13 Sheet Music</h1>
     <div id='loading'>
@@ -50,12 +49,8 @@
         }
 
         function copyText(){
-            const parsed_sheet_music = '{{sheet_music}}' != 'false' ? JSON.parse('{{ sheet_music | tojson }}') : null;
-            console.log(parsed_sheet_music);
-            alert('working')
-            console.log('copy')
-            alert(parsed_sheet_music)
-            navigator.clipboard.writeText(parsed_sheet_music);
+            const copy = {{ sheet_music | tojson }};
+            navigator.clipboard.writeText(copy);
         }   
     </script>
 </body>

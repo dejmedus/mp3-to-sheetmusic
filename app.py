@@ -9,8 +9,6 @@ from audio_to_midi.audio2midi import audio_to_midi
 from midi_to_sheet_music.midi2piano import midi_to_music_sheet
 
 
-
-
 app = Flask(__name__)
 
 load_dotenv()
@@ -31,7 +29,6 @@ def allowed_file(filename):
 @app.route("/", methods=['GET', 'POST'])
 def root():
     if request.method == 'POST':
-        
         if 'file' not in request.files:
             flash('File not found.')
             return redirect(request.url)
@@ -48,16 +45,19 @@ def root():
         # convert audio to midi
         midi = audio_to_midi(f'uploads/{filename}')
         # convert midi to sheet music
-        # results = midi_to_music_sheet(midi, filename)
+        results = midi_to_music_sheet(midi)
+        
         # results = {
         #     'date': 'date',
         #     'name': 'output_name',
-        #     'sheet_music': 'sdhjdfhjdskfhdsu'
+        #     'sheet_music': 'new 2'
         # }
+
+        # clear uploads
         # os.remove(os.path.join(
         #     ['UPLOAD_FOLDER'], filename))
 
-        # return render_template('app.html', date=results['date'], name=results['name'], sheet_music=results['sheet_music'])
+        return render_template('app.html', date=results['date'], name=results['name'], sheet_music=results['sheet_music'])
 
     return render_template('app.html', sheet_music='false')
 

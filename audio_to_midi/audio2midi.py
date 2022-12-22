@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from sound_to_midi.monophonic import wave_to_midi
+from audio_to_midi.monophonic import wave_to_midi
 import librosa
-import os
 
 def create_file_name(file_path):
     index = file_path.rfind('.')
@@ -11,15 +10,14 @@ def create_file_name(file_path):
 
 
 def audio_to_midi(file_input):
-    # file_out = create_file_name(file_input)
+    file_out = create_file_name(file_input)
 
     audio_data, srate = librosa.load(file_input, sr=None)
 
     midi = wave_to_midi(audio_data, srate=srate)
     
     # midi.save(os.path.join('uploads', file_input))
-    # with open(file_out, 'wb') as file:
-    #     midi.writeFile(file)
-    # return file_out
-    print(f'midi, {type(midi)}')
-    return midi
+    with open(file_out, 'wb') as file:
+        midi.writeFile(file)
+    return file_out
+    # return midi
