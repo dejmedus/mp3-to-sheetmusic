@@ -21,10 +21,15 @@
 <body>
     <main>
         {% if sheet_music != 'false' %}
-        <h1>Sheet Music {{ name }}</h1>
-        <div class="sheet_music">
+        <h1>Sheet Music ({{ name }})</h1>
+        <div class="sheet-music">
             <p>{{ sheet_music }}</p>
-            <button onclick="copyText()">copy</button>
+            <div class="flex">
+                <a href="{{ url_for('root') }}">
+                    <img src="{{url_for('static', filename='images/arrow.png')}}" />
+                </a>
+                <button onclick="copyText()">copy to clipboard</button>
+            </div>
         </div>
         {% else %}
         <h1>Audio to SS13 Sheet Music</h1>
@@ -46,18 +51,16 @@
         </a>
     </footer>
     <script>
-        function input()
-        {
+        function input() {
             document.getElementById('submit').disabled = false;
         }
-        function loading()
-        {
+        function loading() {
             document.getElementById('loading').classList.add('loading');
             document.getElementById('form').style.display = "none";
         }
 
-        function copyText(){
-            const copy = {{ sheet_music | tojson }};
+        function copyText() {
+            const copy = {{ sheet_music | tojson}};
             navigator.clipboard.writeText(copy);
         }   
     </script>
