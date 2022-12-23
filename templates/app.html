@@ -60,7 +60,9 @@
         }
 
         function copyText() {
-            const copy = {{ sheet_music | tojson}};
+            // formatter prefers brackets, remove from string with slice
+            const copy = '{{ sheet_music | tojson}}';
+            copy = copy.slice(1, -1);
             navigator.clipboard.writeText(copy);
         }   
     </script>

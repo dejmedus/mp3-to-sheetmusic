@@ -1,8 +1,7 @@
 ## Audio to Sheet Music 🎵
 
-### Takes in a .mp3, .wav, or .aiff and returns SS13 sheet music
+### Convert .mp3, .wav, or .aiff to SS13 sheet music
 
-This repo modifies and combines [audio_to_midi](https://github.com/tiagoft/audio_to_midi) and [midi2piano](https://github.com/tgstation/tgstation/blob/master/tools/midi2piano/midi2piano.py). Both are under a General Public Licenses which permit copying, distributing, and modifying.
+Flask app that modifies and combines the [audio_to_midi](https://github.com/tiagoft/audio_to_midi) and [midi2piano](https://github.com/tgstation/tgstation/tree/master/tools/midi2piano) packages.
 
 More information about SS13 sheet music and its use can be found [here.](https://tgstation13.org/wiki/Songs)
-
