@@ -51,6 +51,22 @@
         </a>
     </footer>
     <script>
+
+        // change color of file input when files dragged over top
+        file.addEventListener('dragenter', () => { 
+
+            console.log('drag enter')
+            document.getElementById('file').style.backgroundColor = 'rgba(121, 177, 255, 0.342)';
+        });
+        file.addEventListener('drop', (e) => { 
+            console.log('dropped')
+            document.getElementById('file').style.backgroundColor = "rgba(121, 177, 255, 0)";
+        });
+         file.addEventListener('dragleave', () => {
+            console.log('drag leave')
+            document.getElementById('file').style.backgroundColor = "rgba(121, 177, 255, 0)";
+        });
+
         function input() {
             document.getElementById('submit').disabled = false;
         }
