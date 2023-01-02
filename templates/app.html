@@ -53,17 +53,13 @@
     <script>
 
         // change color of file input when files dragged over top
-        file.addEventListener('dragenter', () => { 
-
-            console.log('drag enter')
+        file.addEventListener('dragenter', () => {
             document.getElementById('file').style.backgroundColor = 'rgba(121, 177, 255, 0.342)';
         });
-        file.addEventListener('drop', (e) => { 
-            console.log('dropped')
+        file.addEventListener('drop', (e) => {
             document.getElementById('file').style.backgroundColor = "rgba(121, 177, 255, 0)";
         });
-         file.addEventListener('dragleave', () => {
-            console.log('drag leave')
+        file.addEventListener('dragleave', () => {
             document.getElementById('file').style.backgroundColor = "rgba(121, 177, 255, 0)";
         });
 

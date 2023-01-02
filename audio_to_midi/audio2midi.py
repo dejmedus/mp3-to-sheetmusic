@@ -16,7 +16,6 @@ def audio_to_midi(file_input):
 
     midi = wave_to_midi(audio_data, srate=srate)
     
-    # midi.save(os.path.join('uploads', file_input))
     with open(file_out, 'wb') as file:
         midi.writeFile(file)
     return file_out
