@@ -9,7 +9,7 @@ More information about SS13 sheet music and its use can be found [here.](https:/
 ### Local Setup
 - fork & clone
 - create virtual env
-- pip install requirements.txt
+- install requirements.txt
 - flask run
 
 *example results:*
